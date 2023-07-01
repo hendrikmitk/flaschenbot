@@ -16,7 +16,7 @@ articles.get('/', (req: Request, res: Response) => {
     return res.status(422).send({
       code: res.statusCode,
       text: 'Unprocessable Content',
-      message: "Request must contain a 'id' query parameter",
+      message: "Request must contain an 'id' query parameter",
       data: undefined,
     });
   }
