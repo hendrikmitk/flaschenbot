@@ -2,6 +2,7 @@ import express, { Request, Response, Router } from 'express';
 
 import flaschenpostClient from '../client/flaschenpost.client';
 import { getFlaschenpostOffers } from '../functions/get-flaschenpost-offers';
+import { getUniqueArticleIds } from '../functions/get-unique-article-ids';
 
 const articles: Router = express.Router();
 
@@ -17,22 +18,8 @@ articles.get('/', (req: Request, res: Response) => {
     });
   }
 
-  const idQueryParams = queryParams['id'];
-
-  const articleIds: string[] = [];
-
-  if (Array.isArray(idQueryParams)) {
-    idQueryParams.forEach((param) => {
-      articleIds.push(param.toString());
-    });
-  } else if (typeof idQueryParams === 'string') {
-    articleIds.push(idQueryParams);
-  }
-
-  const uniqueArticleIds: string[] = [...new Set(articleIds)];
-
   flaschenpostClient
-    .getArticles(uniqueArticleIds)
+    .getArticles(getUniqueArticleIds(queryParams['id'] as string[] | string))
     .then((response) => {
       return res.status(200).send({
         code: res.statusCode,
