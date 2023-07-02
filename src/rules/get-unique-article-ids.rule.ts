@@ -1,4 +1,4 @@
-export const getUniqueArticleIds = (
+export const getUniqueArticleIdsRule = (
   idQueryParams: string[] | string
 ): string[] => {
   const articleIds: string[] = [];

@@ -1,10 +1,10 @@
 import { Inventory, Result } from '../models/inventory.model';
 import { Offer } from '../models/offers.model';
-import { hasArticleOnSaleRule } from '../rules/has-article-on-sale.rule';
-import { getSavingsAmountRule } from '../rules/get-savings-amount.rule';
-import { getSavingsPercentRule } from '../rules/get-savings-percent.rule';
+import { hasArticleOnSaleRule } from './has-article-on-sale.rule';
+import { getSavingsAmountRule } from './get-savings-amount.rule';
+import { getSavingsPercentRule } from './get-savings-percent.rule';
 
-export const getFlaschenpostOffers = (inventory: Inventory): Offer[] =>
+export const getFlaschenpostOffersRule = (inventory: Inventory): Offer[] =>
   inventory.results.map((result: Result) => {
     return {
       name: result.name,

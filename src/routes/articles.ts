@@ -1,8 +1,8 @@
 import express, { Request, Response, Router } from 'express';
 
 import flaschenpostClient from '../client/flaschenpost.client';
-import { getFlaschenpostOffers } from '../functions/get-flaschenpost-offers';
-import { getUniqueArticleIds } from '../functions/get-unique-article-ids';
+import { getFlaschenpostOffersRule } from '../rules/get-flaschenpost-offers.rule';
+import { getUniqueArticleIdsRule } from '../rules/get-unique-article-ids.rule';
 
 const articles: Router = express.Router();
 
@@ -19,13 +19,15 @@ articles.get('/', (req: Request, res: Response) => {
   }
 
   flaschenpostClient
-    .getArticles(getUniqueArticleIds(queryParams['id'] as string[] | string))
+    .getArticles(
+      getUniqueArticleIdsRule(queryParams['id'] as string[] | string)
+    )
     .then((response) => {
       return res.status(200).send({
         code: res.statusCode,
         text: 'OK',
         message: undefined,
-        data: getFlaschenpostOffers(response.data),
+        data: getFlaschenpostOffersRule(response.data),
       });
     })
     .catch((error) => {
