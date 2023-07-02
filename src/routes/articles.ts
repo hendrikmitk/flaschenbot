@@ -1,11 +1,7 @@
 import express, { Request, Response, Router } from 'express';
 
 import flaschenpostClient from '../client/flaschenpost.client';
-import { Inventory, Result } from '../models/inventory.model';
-import { Offer } from '../models/offers.model';
-import { hasArticleOnSaleRule } from '../rules/has-article-on-sale.rule';
-import { getSavingsAmountRule } from '../rules/get-savings-amount.rule';
-import { getSavingsPercentRule } from '../rules/get-savings-percent.rule';
+import { getFlaschenpostOffers } from '../functions/get-flaschenpost-offers';
 
 const articles: Router = express.Router();
 
@@ -38,28 +34,11 @@ articles.get('/', (req: Request, res: Response) => {
   flaschenpostClient
     .getArticles(uniqueArticleIds)
     .then((response) => {
-      const inventory: Inventory = response.data;
-
-      const offers: Offer[] = inventory.results.map((result: Result) => {
-        return {
-          name: result.name,
-          description: result.articles[0].shortDescription,
-          price: result.articles[0].crossedPrice,
-          onSale: hasArticleOnSaleRule(result),
-          savings: hasArticleOnSaleRule(result)
-            ? {
-                amount: getSavingsAmountRule(result),
-                percent: getSavingsPercentRule(result),
-              }
-            : undefined,
-        };
-      });
-
       return res.status(200).send({
         code: res.statusCode,
         text: 'OK',
         message: undefined,
-        data: offers,
+        data: getFlaschenpostOffers(response.data),
       });
     })
     .catch((error) => {
