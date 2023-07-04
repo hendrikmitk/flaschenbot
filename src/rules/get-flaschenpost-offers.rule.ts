@@ -7,8 +7,12 @@ import { getSavingsPercentRule } from './get-savings-percent.rule';
 export const getFlaschenpostOffersRule = (inventory: Inventory): Offer[] =>
   inventory.results.map((result: Result) => {
     return {
-      name: result.name,
-      description: result.articles[0].shortDescription,
+      name: result.name.trim(),
+      description: result.articles[0].shortDescription.includes(' (Glas)')
+        ? result.articles[0].shortDescription
+            .slice(0, result.articles[0].shortDescription.slice.length - 9)
+            .trim()
+        : result.articles[0].shortDescription.trim(),
       price: result.articles[0].crossedPrice,
       onSale: hasArticleOnSaleRule(result),
       savings: hasArticleOnSaleRule(result)
