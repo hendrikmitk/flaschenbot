@@ -1,4 +1,4 @@
-import { Inventory, Result } from '../models/inventory.model';
+import { Inventory, Result } from '../client/flaschenpost.response';
 import { Offer } from '../models/offers.model';
 import { hasArticleOnSaleRule } from './has-article-on-sale.rule';
 import { getSavingsAmountRule } from './get-savings-amount.rule';

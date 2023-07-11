@@ -1,4 +1,4 @@
-import { Result } from '../models/inventory.model';
+import { Result } from '../client/flaschenpost.response';
 
 export const getSavingsPercentRule = (result: Result): string =>
   new Intl.NumberFormat('de-DE', {
