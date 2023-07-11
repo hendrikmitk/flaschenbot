@@ -1,15 +1,11 @@
 import axios from 'axios';
-import dotenv from 'dotenv';
-
-dotenv.config();
 
 const BASE_URL = 'https://botsin.space';
-const TOKEN = process.env.MASTODON_TOKEN;
 
 export const client = () => {
   const config = {
     baseURL: BASE_URL,
-    headers: { Authorization: `Bearer ${TOKEN}` },
+    headers: { Authorization: `Bearer ${process.env.MASTODON_TOKEN}` },
   };
   return axios.create(config);
 };
