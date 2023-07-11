@@ -27,7 +27,7 @@ export interface Parent {
 export interface Properties {
   active: Active;
   created: Created;
-  flaschenpost_id: FlaschenpostID;
+  article_id: ArticleID;
   name: Name;
 }
 
@@ -43,7 +43,7 @@ export interface Created {
   created_time: string;
 }
 
-export interface FlaschenpostID {
+export interface ArticleID {
   id: string;
   type: string;
   number: number;

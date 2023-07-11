@@ -30,7 +30,7 @@ status.get('/', (req: Request, res: Response) => {
           id: result.id,
           active: result.properties.active.checkbox,
           name: result.properties.name.title[0].plain_text,
-          flaschenpost_id: result.properties.flaschenpost_id.number,
+          article_id: result.properties.article_id.number,
         };
       });
 
