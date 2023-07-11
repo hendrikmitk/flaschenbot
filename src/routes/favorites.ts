@@ -2,7 +2,7 @@ import express, { Request, Response, Router } from 'express';
 
 import notionClient from '../client/notion.client';
 import { Result } from '../client/notion.response';
-import { Favorite } from '../models/favorite.model';
+import { getNotionFavoritesRule } from '../rules/get-notion-favorites.rule';
 
 const status: Router = express.Router();
 
@@ -25,20 +25,11 @@ status.get('/', (req: Request, res: Response) => {
       // @ts-ignore
       const results: Result[] = response.results;
 
-      const favorites: Favorite[] = results.map((result: Result) => {
-        return {
-          id: result.id,
-          active: result.properties.active.checkbox,
-          name: result.properties.name.title[0].plain_text,
-          article_id: result.properties.article_id.number,
-        };
-      });
-
       return res.status(200).send({
         code: res.statusCode,
         text: 'OK',
         message: undefined,
-        data: favorites,
+        data: getNotionFavoritesRule(results),
       });
     })
     .catch((error) => {
