@@ -9,12 +9,13 @@ import { composeMastodonStatusRule } from '../rules/compose-mastodon-status.rule
 import { getFavoritesArticleIdsRule } from '../rules/get-favorites-article-ids.rule';
 import { getFlaschenpostOffersRule } from '../rules/get-flaschenpost-offers.rule';
 import { getNotionFavoritesRule } from '../rules/get-notion-favorites.rule';
+import { auth } from '../utils/auth';
 
 const combined: Router = express.Router();
 
 export const databaseId = process.env.NOTION_DATABASE_ID;
 
-combined.get('/', (req: Request, res: Response) => {
+combined.get('/', auth, (req: Request, res: Response) => {
   if (!databaseId) {
     return res.status(500).send({
       code: res.statusCode,

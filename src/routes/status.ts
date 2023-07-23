@@ -6,10 +6,11 @@ import { Offer } from '../models/offers.model';
 import { composeMastodonStatusRule } from '../rules/compose-mastodon-status.rule';
 import { getFlaschenpostOffersRule } from '../rules/get-flaschenpost-offers.rule';
 import { getUniqueArticleIdsRule } from '../rules/get-unique-article-ids.rule';
+import { auth } from '../utils/auth';
 
 const status: Router = express.Router();
 
-status.get('/', (req: Request, res: Response) => {
+status.get('/', auth, (req: Request, res: Response) => {
   const queryParams = req.query;
 
   if (!('id' in queryParams)) {

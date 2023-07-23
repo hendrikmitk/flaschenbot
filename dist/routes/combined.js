@@ -12,9 +12,10 @@ const compose_mastodon_status_rule_1 = require("../rules/compose-mastodon-status
 const get_favorites_article_ids_rule_1 = require("../rules/get-favorites-article-ids.rule");
 const get_flaschenpost_offers_rule_1 = require("../rules/get-flaschenpost-offers.rule");
 const get_notion_favorites_rule_1 = require("../rules/get-notion-favorites.rule");
+const auth_1 = require("../utils/auth");
 const combined = express_1.default.Router();
 exports.databaseId = process.env.NOTION_DATABASE_ID;
-combined.get('/', (req, res) => {
+combined.get('/', auth_1.auth, (req, res) => {
     if (!exports.databaseId) {
         return res.status(500).send({
             code: res.statusCode,

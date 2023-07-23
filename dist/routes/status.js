@@ -9,8 +9,9 @@ const mastodon_client_1 = __importDefault(require("../client/mastodon.client"));
 const compose_mastodon_status_rule_1 = require("../rules/compose-mastodon-status.rule");
 const get_flaschenpost_offers_rule_1 = require("../rules/get-flaschenpost-offers.rule");
 const get_unique_article_ids_rule_1 = require("../rules/get-unique-article-ids.rule");
+const auth_1 = require("../utils/auth");
 const status = express_1.default.Router();
-status.get('/', (req, res) => {
+status.get('/', auth_1.auth, (req, res) => {
     const queryParams = req.query;
     if (!('id' in queryParams)) {
         return res.status(422).send({
