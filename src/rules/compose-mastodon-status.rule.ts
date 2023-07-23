@@ -6,7 +6,7 @@ export const composeMastodonStatusRule = (offersOnSale: Offer[]): string => {
       `${offerOnSale.savings?.amount} on ${offerOnSale.name} ${offerOnSale.description}`
   );
 
-  let message = 'Save ';
+  let message = '@hendrik@mas.to Save ';
 
   for (let i = 0; i < parts.length; i++) {
     const isLastItem: boolean = i === parts.length - 1;
