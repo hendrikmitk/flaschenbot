@@ -34,6 +34,14 @@ combined.get('/', auth, (req: Request, res: Response) => {
 
       const favorites: Favorite[] = getNotionFavoritesRule(results);
 
+      if (favorites.length === 0)
+        return res.status(200).send({
+          code: res.statusCode,
+          text: 'OK',
+          message: 'No favorites in database',
+          data: undefined,
+        });
+
       flaschenpostClient
         .getArticles(getFavoritesArticleIdsRule(favorites))
         .then((response) => {
