@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.databaseId = void 0;
 const express_1 = __importDefault(require("express"));
 const notion_client_1 = __importDefault(require("../client/notion.client"));
+const filter_notion_favorites_rule_1 = require("../rules/filter-notion-favorites.rule");
 const get_notion_favorites_rule_1 = require("../rules/get-notion-favorites.rule");
 const status = express_1.default.Router();
 exports.databaseId = process.env.NOTION_DATABASE_ID;
@@ -28,7 +29,7 @@ status.get('/', (req, res) => {
             code: res.statusCode,
             text: 'OK',
             message: undefined,
-            data: (0, get_notion_favorites_rule_1.getNotionFavoritesRule)(results),
+            data: (0, filter_notion_favorites_rule_1.filterNotionFavoritesRule)((0, get_notion_favorites_rule_1.getNotionFavoritesRule)(results)),
         });
     })
         .catch((error) => {

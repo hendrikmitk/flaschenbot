@@ -9,6 +9,7 @@ const flaschenpost_client_1 = __importDefault(require("../client/flaschenpost.cl
 const mastodon_client_1 = __importDefault(require("../client/mastodon.client"));
 const notion_client_1 = __importDefault(require("../client/notion.client"));
 const compose_mastodon_status_rule_1 = require("../rules/compose-mastodon-status.rule");
+const filter_notion_favorites_rule_1 = require("../rules/filter-notion-favorites.rule");
 const get_favorites_article_ids_rule_1 = require("../rules/get-favorites-article-ids.rule");
 const get_flaschenpost_offers_rule_1 = require("../rules/get-flaschenpost-offers.rule");
 const get_notion_favorites_rule_1 = require("../rules/get-notion-favorites.rule");
@@ -30,12 +31,12 @@ combined.get('/', auth_1.auth, (req, res) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         const results = response.results;
-        const favorites = (0, get_notion_favorites_rule_1.getNotionFavoritesRule)(results);
+        const favorites = (0, filter_notion_favorites_rule_1.filterNotionFavoritesRule)((0, get_notion_favorites_rule_1.getNotionFavoritesRule)(results));
         if (favorites.length === 0)
             return res.status(200).send({
                 code: res.statusCode,
                 text: 'OK',
-                message: 'No favorites in database',
+                message: 'No active favorites in database',
                 data: undefined,
             });
         flaschenpost_client_1.default

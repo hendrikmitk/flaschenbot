@@ -6,6 +6,7 @@ import notionClient from '../client/notion.client';
 import { Favorite } from '../models/favorite.model';
 import { Offer } from '../models/offers.model';
 import { composeMastodonStatusRule } from '../rules/compose-mastodon-status.rule';
+import { filterNotionFavoritesRule } from '../rules/filter-notion-favorites.rule';
 import { getFavoritesArticleIdsRule } from '../rules/get-favorites-article-ids.rule';
 import { getFlaschenpostOffersRule } from '../rules/get-flaschenpost-offers.rule';
 import { getNotionFavoritesRule } from '../rules/get-notion-favorites.rule';
@@ -32,13 +33,15 @@ combined.get('/', auth, (req: Request, res: Response) => {
       // @ts-ignore
       const results: Result[] = response.results;
 
-      const favorites: Favorite[] = getNotionFavoritesRule(results);
+      const favorites: Favorite[] = filterNotionFavoritesRule(
+        getNotionFavoritesRule(results)
+      );
 
       if (favorites.length === 0)
         return res.status(200).send({
           code: res.statusCode,
           text: 'OK',
-          message: 'No favorites in database',
+          message: 'No active favorites in database',
           data: undefined,
         });
 

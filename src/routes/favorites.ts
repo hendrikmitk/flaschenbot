@@ -2,6 +2,7 @@ import express, { Request, Response, Router } from 'express';
 
 import notionClient from '../client/notion.client';
 import { Result } from '../client/notion.response';
+import { filterNotionFavoritesRule } from '../rules/filter-notion-favorites.rule';
 import { getNotionFavoritesRule } from '../rules/get-notion-favorites.rule';
 
 const status: Router = express.Router();
@@ -29,7 +30,7 @@ status.get('/', (req: Request, res: Response) => {
         code: res.statusCode,
         text: 'OK',
         message: undefined,
-        data: getNotionFavoritesRule(results),
+        data: filterNotionFavoritesRule(getNotionFavoritesRule(results)),
       });
     })
     .catch((error) => {
