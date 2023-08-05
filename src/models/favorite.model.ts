@@ -1,6 +1,6 @@
 export interface Favorite {
   id: string;
   active: boolean;
-  name: string;
-  article_id: number;
+  article_name: string;
+  flaschenpost_id: number;
 }

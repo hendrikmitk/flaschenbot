@@ -6,7 +6,7 @@ export const getNotionFavoritesRule = (results: Result[]): Favorite[] =>
     return {
       id: result.id,
       active: result.properties.active.checkbox,
-      name: result.properties.name.title[0].plain_text,
-      article_id: result.properties.article_id.number,
+      article_name: result.properties.article_name.title[0].plain_text,
+      flaschenpost_id: result.properties.flaschenpost_id.number,
     };
   });

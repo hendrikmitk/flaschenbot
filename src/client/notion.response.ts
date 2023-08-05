@@ -25,31 +25,38 @@ export interface Parent {
 }
 
 export interface Properties {
-  active: Active;
-  created: Created;
-  article_id: ArticleID;
-  name: Name;
+  active: CheckboxInterface;
+  article_name: TitleInterface;
+  flaschenpost_id: NumberInterface;
+  created: CreatedTimeInterface;
+  last_edited: LastEditedTimeInterface;
 }
 
-export interface Active {
+export interface CheckboxInterface {
   id: string;
   type: string;
   checkbox: boolean;
 }
 
-export interface Created {
+export interface CreatedTimeInterface {
   id: string;
   type: string;
   created_time: string;
 }
 
-export interface ArticleID {
+export interface LastEditedTimeInterface {
+  id: string;
+  type: string;
+  last_edited_time: string;
+}
+
+export interface NumberInterface {
   id: string;
   type: string;
   number: number;
 }
 
-export interface Name {
+export interface TitleInterface {
   id: string;
   type: string;
   title: Title[];
