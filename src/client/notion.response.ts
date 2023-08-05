@@ -9,7 +9,7 @@ export interface Result {
   icon: unknown;
   parent: Parent;
   archived: boolean;
-  properties: Properties;
+  properties: PartialProperties;
   url: string;
   public_url: unknown;
 }
@@ -23,6 +23,9 @@ export interface Parent {
   type: string;
   database_id: string;
 }
+
+export type PartialProperties = Partial<Properties> &
+  Pick<Properties, 'article_name' | 'flaschenpost_id' | 'created'>;
 
 export interface Properties {
   active: CheckboxInterface;

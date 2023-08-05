@@ -7,6 +7,7 @@ import { getSavingsPercentRule } from './get-savings-percent.rule';
 export const getFlaschenpostOffersRule = (inventory: Inventory): Offer[] =>
   inventory.results.map((result: Result) => {
     return {
+      id: result.articles[0].id,
       name: result.name.trim(),
       description: result.articles[0].shortDescription.includes(' (Glas)')
         ? result.articles[0].shortDescription

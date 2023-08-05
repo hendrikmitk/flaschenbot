@@ -7,10 +7,10 @@ import { getNotionFavoritesRule } from '../rules/get-notion-favorites.rule';
 
 const status: Router = express.Router();
 
-export const databaseId = process.env.NOTION_DATABASE_ID;
+export const favoritesDatabaseId = process.env.FAVORITES_DATABASE_ID;
 
 status.get('/', (req: Request, res: Response) => {
-  if (!databaseId) {
+  if (!favoritesDatabaseId) {
     return res.status(500).send({
       code: res.statusCode,
       text: 'Internal Server Error',
@@ -20,7 +20,7 @@ status.get('/', (req: Request, res: Response) => {
   }
 
   notionClient
-    .getDatabase(databaseId)
+    .getDatabase(favoritesDatabaseId)
     .then((response) => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore

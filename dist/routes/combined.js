@@ -3,11 +3,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.databaseId = void 0;
+exports.savedOffersDatabaseId = exports.favoritesDatabaseId = void 0;
 const express_1 = __importDefault(require("express"));
 const flaschenpost_client_1 = __importDefault(require("../client/flaschenpost.client"));
 const mastodon_client_1 = __importDefault(require("../client/mastodon.client"));
 const notion_client_1 = __importDefault(require("../client/notion.client"));
+const check_ids_for_equality_1 = require("../functions/check-ids-for-equality");
 const compose_mastodon_status_rule_1 = require("../rules/compose-mastodon-status.rule");
 const filter_notion_favorites_rule_1 = require("../rules/filter-notion-favorites.rule");
 const get_favorites_article_ids_rule_1 = require("../rules/get-favorites-article-ids.rule");
@@ -15,9 +16,10 @@ const get_flaschenpost_offers_rule_1 = require("../rules/get-flaschenpost-offers
 const get_notion_favorites_rule_1 = require("../rules/get-notion-favorites.rule");
 const auth_1 = require("../utils/auth");
 const combined = express_1.default.Router();
-exports.databaseId = process.env.NOTION_DATABASE_ID;
+exports.favoritesDatabaseId = process.env.FAVORITES_DATABASE_ID;
+exports.savedOffersDatabaseId = process.env.SAVED_OFFERS_DATABASE_ID;
 combined.get('/', auth_1.auth, (req, res) => {
-    if (!exports.databaseId) {
+    if (!exports.favoritesDatabaseId || !exports.savedOffersDatabaseId) {
         return res.status(500).send({
             code: res.statusCode,
             text: 'Internal Server Error',
@@ -26,7 +28,7 @@ combined.get('/', auth_1.auth, (req, res) => {
         });
     }
     notion_client_1.default
-        .getDatabase(exports.databaseId)
+        .getDatabase(exports.favoritesDatabaseId)
         .then((response) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
@@ -42,22 +44,50 @@ combined.get('/', auth_1.auth, (req, res) => {
         flaschenpost_client_1.default
             .getArticles((0, get_favorites_article_ids_rule_1.getFavoritesArticleIdsRule)(favorites))
             .then((response) => {
-            const offersOnSale = (0, get_flaschenpost_offers_rule_1.getFlaschenpostOffersRule)(response.data).filter((offer) => offer.onSale);
-            if (offersOnSale.length === 0)
+            const currentOffers = (0, get_flaschenpost_offers_rule_1.getFlaschenpostOffersRule)(response.data).filter((offer) => offer.onSale);
+            if (currentOffers.length === 0)
                 return res.status(200).send({
                     code: res.statusCode,
                     text: 'OK',
-                    message: 'No product on sale',
+                    message: 'No products on sale',
                     data: undefined,
                 });
-            mastodon_client_1.default
-                .postStatus((0, compose_mastodon_status_rule_1.composeMastodonStatusRule)(offersOnSale))
-                .then(() => {
-                return res.status(201).send({
-                    code: res.statusCode,
-                    text: 'Created',
-                    message: undefined,
-                    data: offersOnSale,
+            const currentOfferIds = currentOffers.map((currentOffer) => currentOffer.id);
+            notion_client_1.default
+                .getDatabase(exports.savedOffersDatabaseId)
+                .then((response) => {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                const savedOffers = response.results;
+                const savedOfferIds = savedOffers.map((savedOffer) => savedOffer.properties.flaschenpost_id.number);
+                if ((0, check_ids_for_equality_1.checkIdsForEquality)(currentOfferIds, savedOfferIds)) {
+                    return res.status(200).send({
+                        code: res.statusCode,
+                        text: 'OK',
+                        message: 'Products on sale have not changed',
+                        data: undefined,
+                    });
+                }
+                savedOffers.forEach((savedOffer) => {
+                    notion_client_1.default.archivePage(savedOffer.id).catch((error) => {
+                        console.log(error);
+                    });
+                });
+                currentOffers.forEach((currentOffer) => {
+                    notion_client_1.default.createPage(exports.savedOffersDatabaseId, currentOffer.name, currentOffer.id);
+                });
+                mastodon_client_1.default
+                    .postStatus((0, compose_mastodon_status_rule_1.composeMastodonStatusRule)(currentOffers))
+                    .then(() => {
+                    return res.status(201).send({
+                        code: res.statusCode,
+                        text: 'Created',
+                        message: undefined,
+                        data: currentOffers,
+                    });
+                })
+                    .catch((error) => {
+                    console.log(error);
                 });
             })
                 .catch((error) => {

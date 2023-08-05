@@ -6,6 +6,7 @@ const get_savings_amount_rule_1 = require("./get-savings-amount.rule");
 const get_savings_percent_rule_1 = require("./get-savings-percent.rule");
 const getFlaschenpostOffersRule = (inventory) => inventory.results.map((result) => {
     return {
+        id: result.articles[0].id,
         name: result.name.trim(),
         description: result.articles[0].shortDescription.includes(' (Glas)')
             ? result.articles[0].shortDescription
