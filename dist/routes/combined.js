@@ -3,7 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.savedOffersDatabaseId = exports.favoritesDatabaseId = void 0;
 const express_1 = __importDefault(require("express"));
 const flaschenpost_client_1 = __importDefault(require("../client/flaschenpost.client"));
 const mastodon_client_1 = __importDefault(require("../client/mastodon.client"));
@@ -16,10 +15,10 @@ const get_flaschenpost_offers_rule_1 = require("../rules/get-flaschenpost-offers
 const get_notion_favorites_rule_1 = require("../rules/get-notion-favorites.rule");
 const auth_1 = require("../utils/auth");
 const combined = express_1.default.Router();
-exports.favoritesDatabaseId = process.env.FAVORITES_DATABASE_ID;
-exports.savedOffersDatabaseId = process.env.SAVED_OFFERS_DATABASE_ID;
+const favoritesDatabaseId = process.env.FAVORITES_DATABASE_ID;
+const savedOffersDatabaseId = process.env.SAVED_OFFERS_DATABASE_ID;
 combined.get('/', auth_1.auth, (req, res) => {
-    if (!exports.favoritesDatabaseId || !exports.savedOffersDatabaseId) {
+    if (!favoritesDatabaseId || !savedOffersDatabaseId) {
         return res.status(500).send({
             code: res.statusCode,
             text: 'Internal Server Error',
@@ -28,7 +27,7 @@ combined.get('/', auth_1.auth, (req, res) => {
         });
     }
     notion_client_1.default
-        .getDatabase(exports.favoritesDatabaseId)
+        .getDatabase(favoritesDatabaseId)
         .then((response) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
@@ -54,7 +53,7 @@ combined.get('/', auth_1.auth, (req, res) => {
                 });
             const currentOfferIds = currentOffers.map((currentOffer) => currentOffer.id);
             notion_client_1.default
-                .getDatabase(exports.savedOffersDatabaseId)
+                .getDatabase(savedOffersDatabaseId)
                 .then((response) => {
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
@@ -74,7 +73,7 @@ combined.get('/', auth_1.auth, (req, res) => {
                     });
                 });
                 currentOffers.forEach((currentOffer) => {
-                    notion_client_1.default.createPage(exports.savedOffersDatabaseId, currentOffer.name, currentOffer.id);
+                    notion_client_1.default.createPage(savedOffersDatabaseId, currentOffer.name, currentOffer.id);
                 });
                 mastodon_client_1.default
                     .postStatus((0, compose_mastodon_status_rule_1.composeMastodonStatusRule)(currentOffers))

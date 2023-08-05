@@ -7,7 +7,7 @@ import { getNotionFavoritesRule } from '../rules/get-notion-favorites.rule';
 
 const status: Router = express.Router();
 
-export const favoritesDatabaseId = process.env.FAVORITES_DATABASE_ID;
+const favoritesDatabaseId = process.env.FAVORITES_DATABASE_ID;
 
 status.get('/', (req: Request, res: Response) => {
   if (!favoritesDatabaseId) {

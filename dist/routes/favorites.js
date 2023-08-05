@@ -3,15 +3,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.favoritesDatabaseId = void 0;
 const express_1 = __importDefault(require("express"));
 const notion_client_1 = __importDefault(require("../client/notion.client"));
 const filter_notion_favorites_rule_1 = require("../rules/filter-notion-favorites.rule");
 const get_notion_favorites_rule_1 = require("../rules/get-notion-favorites.rule");
 const status = express_1.default.Router();
-exports.favoritesDatabaseId = process.env.FAVORITES_DATABASE_ID;
+const favoritesDatabaseId = process.env.FAVORITES_DATABASE_ID;
 status.get('/', (req, res) => {
-    if (!exports.favoritesDatabaseId) {
+    if (!favoritesDatabaseId) {
         return res.status(500).send({
             code: res.statusCode,
             text: 'Internal Server Error',
@@ -20,7 +19,7 @@ status.get('/', (req, res) => {
         });
     }
     notion_client_1.default
-        .getDatabase(exports.favoritesDatabaseId)
+        .getDatabase(favoritesDatabaseId)
         .then((response) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore

@@ -16,8 +16,8 @@ import { auth } from '../utils/auth';
 
 const combined: Router = express.Router();
 
-export const favoritesDatabaseId = process.env.FAVORITES_DATABASE_ID;
-export const savedOffersDatabaseId = process.env.SAVED_OFFERS_DATABASE_ID;
+const favoritesDatabaseId = process.env.FAVORITES_DATABASE_ID;
+const savedOffersDatabaseId = process.env.SAVED_OFFERS_DATABASE_ID;
 
 combined.get('/', auth, (req: Request, res: Response) => {
   if (!favoritesDatabaseId || !savedOffersDatabaseId) {
