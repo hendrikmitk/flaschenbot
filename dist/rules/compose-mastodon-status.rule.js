@@ -1,9 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.composeMastodonStatusRule = void 0;
+const mastodonHandle = process.env.MASTODON_HANDLE;
 const composeMastodonStatusRule = (offersOnSale) => {
     const parts = offersOnSale.map((offerOnSale) => { var _a; return `${(_a = offerOnSale.savings) === null || _a === void 0 ? void 0 : _a.amount} on ${offerOnSale.name} ${offerOnSale.description}`; });
-    let message = '@hendrik@mas.to Save ';
+    let message = `${mastodonHandle ? mastodonHandle + ' ' : ''}Save `;
     for (let i = 0; i < parts.length; i++) {
         const isLastItem = i === parts.length - 1;
         const isSecondToLastItem = i === parts.length - 2;
