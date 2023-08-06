@@ -113,19 +113,39 @@ combined.get('/', auth, (req: Request, res: Response) => {
                   });
                 })
                 .catch((error) => {
-                  console.log(error);
+                  return res.status(500).send({
+                    code: res.statusCode,
+                    text: 'Internal Server Error',
+                    message: 'Failed to post status to Mastodon',
+                    data: error,
+                  });
                 });
             })
             .catch((error) => {
-              console.log(error);
+              return res.status(500).send({
+                code: res.statusCode,
+                text: 'Internal Server Error',
+                message: 'Failed to load saved offers from Notion',
+                data: error,
+              });
             });
         })
         .catch((error) => {
-          console.log(error);
+          return res.status(500).send({
+            code: res.statusCode,
+            text: 'Internal Server Error',
+            message: 'Failed to load articles from flaschenpost',
+            data: error,
+          });
         });
     })
     .catch((error) => {
-      console.log(error);
+      return res.status(500).send({
+        code: res.statusCode,
+        text: 'Internal Server Error',
+        message: 'Failed to load favorites from Notion',
+        data: error,
+      });
     });
 });
 

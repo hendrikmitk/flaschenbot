@@ -32,7 +32,12 @@ status.get('/', (req, res) => {
         });
     })
         .catch((error) => {
-        console.log(error);
+        return res.status(500).send({
+            code: res.statusCode,
+            text: 'Internal Server Error',
+            message: 'Failed to load favorites from Notion',
+            data: error,
+        });
     });
 });
 exports.default = status;

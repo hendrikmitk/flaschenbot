@@ -29,7 +29,12 @@ articles.get('/', (req, res) => {
         });
     })
         .catch((error) => {
-        console.log(error);
+        return res.status(500).send({
+            code: res.statusCode,
+            text: 'Internal Server Error',
+            message: 'Failed to load articles from flaschenpost',
+            data: error,
+        });
     });
 });
 exports.default = articles;

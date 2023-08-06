@@ -34,7 +34,12 @@ status.get('/', (req: Request, res: Response) => {
       });
     })
     .catch((error) => {
-      console.log(error);
+      return res.status(500).send({
+        code: res.statusCode,
+        text: 'Internal Server Error',
+        message: 'Failed to load favorites from Notion',
+        data: error,
+      });
     });
 });
 

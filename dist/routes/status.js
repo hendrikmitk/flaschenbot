@@ -43,11 +43,21 @@ status.get('/', auth_1.auth, (req, res) => {
             });
         })
             .catch((error) => {
-            console.log(error);
+            return res.status(500).send({
+                code: res.statusCode,
+                text: 'Internal Server Error',
+                message: 'Failed to post status to Mastodon',
+                data: error,
+            });
         });
     })
         .catch((error) => {
-        console.log(error);
+        return res.status(500).send({
+            code: res.statusCode,
+            text: 'Internal Server Error',
+            message: 'Failed to load articles from flaschenpost',
+            data: error,
+        });
     });
 });
 exports.default = status;
