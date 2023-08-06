@@ -1,4 +1,4 @@
-# flaschenbot
+![flaschenbot](./img/logo-github.png?raw=true 'flaschenbot Logo')
 
 Service for checking products on sale at the drinks delivery service flaschenpost.de.
 
