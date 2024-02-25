@@ -4,6 +4,7 @@ exports.getFlaschenpostOffersRule = void 0;
 const has_article_on_sale_rule_1 = require("./has-article-on-sale.rule");
 const get_savings_amount_rule_1 = require("./get-savings-amount.rule");
 const get_savings_percent_rule_1 = require("./get-savings-percent.rule");
+const get_webshop_url_rule_1 = require("./get-webshop-url.rule");
 const getFlaschenpostOffersRule = (inventory) => inventory.results.map((result) => {
     return {
         id: result.articles[0].id,
@@ -21,6 +22,7 @@ const getFlaschenpostOffersRule = (inventory) => inventory.results.map((result) 
                 percent: (0, get_savings_percent_rule_1.getSavingsPercentRule)(result),
             }
             : undefined,
+        url: (0, get_webshop_url_rule_1.getWebshopUrl)(result),
     };
 });
 exports.getFlaschenpostOffersRule = getFlaschenpostOffersRule;

@@ -1,0 +1,19 @@
+meta {
+  name: combined
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://{{host}}/combined?id=350
+  body: none
+  auth: none
+}
+
+query {
+  id: 350
+}
+
+headers {
+  x-api-key: {{apiKey}}
+}
