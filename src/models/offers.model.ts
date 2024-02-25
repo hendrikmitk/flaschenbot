@@ -8,4 +8,5 @@ export interface Offer {
     amount: string;
     percent: string;
   };
+  url: string;
 }

@@ -3,6 +3,7 @@ import { Offer } from '../models/offers.model';
 import { hasArticleOnSaleRule } from './has-article-on-sale.rule';
 import { getSavingsAmountRule } from './get-savings-amount.rule';
 import { getSavingsPercentRule } from './get-savings-percent.rule';
+import { getWebshopUrl } from './get-webshop-url.rule';
 
 export const getFlaschenpostOffersRule = (inventory: Inventory): Offer[] =>
   inventory.results.map((result: Result) => {
@@ -22,5 +23,6 @@ export const getFlaschenpostOffersRule = (inventory: Inventory): Offer[] =>
             percent: getSavingsPercentRule(result),
           }
         : undefined,
+      url: getWebshopUrl(result),
     };
   });
