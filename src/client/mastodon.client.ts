@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const BASE_URL = 'https://botsin.space';
+const BASE_URL = 'https://mstdn.social';
 const TOKEN = process.env.MASTODON_TOKEN;
 
 export const client = () => {

@@ -7,7 +7,7 @@ exports.client = void 0;
 const axios_1 = __importDefault(require("axios"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
-const BASE_URL = 'https://botsin.space';
+const BASE_URL = 'https://mstdn.social';
 const TOKEN = process.env.MASTODON_TOKEN;
 const client = () => {
     const config = {
