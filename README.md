@@ -39,6 +39,8 @@ If you encounter a bug, feel free to open an [issue] or shoot me an [email].
 [issue]: https://github.com/hendrikmitk/flaschenbot/issues
 [email]: mailto:bugs@hendrikharlichs.de
 
+![Mastodon Follow](https://img.shields.io/mastodon/follow/113471246516778381?domain=https%3A%2F%2Fmstdn.social&style=for-the-badge&logo=mastodon&label=follow%20%40flaschenbot%20on%20mastodon&color=5d4fe6&link=https%3A%2F%2Fmstdn.social%2F%40flaschenbot)
+
 ## Disclaimer
 
 Not associated with flaschenpost SE in any way.
