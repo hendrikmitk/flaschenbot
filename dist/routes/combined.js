@@ -23,14 +23,15 @@ const get_favorites_article_ids_rule_1 = require("../rules/get-favorites-article
 const get_flaschenpost_offers_rule_1 = require("../rules/get-flaschenpost-offers.rule");
 const get_notion_favorites_rule_1 = require("../rules/get-notion-favorites.rule");
 const auth_1 = require("../utils/auth");
+const http_status_codes_1 = require("http-status-codes");
 const combined = express_1.default.Router();
 const favoritesDatabaseId = process.env.FAVORITES_DATABASE_ID;
 const savedOffersDatabaseId = process.env.SAVED_OFFERS_DATABASE_ID;
 combined.get('/', auth_1.auth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (!favoritesDatabaseId || !savedOffersDatabaseId) {
-        return res.status(500).send({
+        return res.status(http_status_codes_1.StatusCodes.NOT_FOUND).send({
             code: res.statusCode,
-            text: 'Internal Server Error',
+            text: http_status_codes_1.ReasonPhrases.NOT_FOUND,
             message: 'No Notion database ID could be found',
             data: undefined,
         });
@@ -39,9 +40,9 @@ combined.get('/', auth_1.auth, (req, res) => __awaiter(void 0, void 0, void 0, f
         const favoritesResponse = yield notion_client_1.default.getDatabase(favoritesDatabaseId);
         const favorites = (0, filter_notion_favorites_rule_1.filterNotionFavoritesRule)((0, get_notion_favorites_rule_1.getNotionFavoritesRule)(favoritesResponse.results));
         if (favorites.length === 0) {
-            return res.status(200).send({
+            return res.status(http_status_codes_1.StatusCodes.OK).send({
                 code: res.statusCode,
-                text: 'OK',
+                text: http_status_codes_1.ReasonPhrases.OK,
                 message: 'No active favorites in database',
                 data: undefined,
             });
@@ -49,9 +50,9 @@ combined.get('/', auth_1.auth, (req, res) => __awaiter(void 0, void 0, void 0, f
         const flaschenpostResponse = yield flaschenpost_client_1.default.getArticles((0, get_favorites_article_ids_rule_1.getFavoritesArticleIdsRule)(favorites));
         const currentOffers = (0, get_flaschenpost_offers_rule_1.getFlaschenpostOffersRule)(flaschenpostResponse.data).filter((offer) => offer.onSale);
         if (currentOffers.length === 0) {
-            return res.status(200).send({
+            return res.status(http_status_codes_1.StatusCodes.OK).send({
                 code: res.statusCode,
-                text: 'OK',
+                text: http_status_codes_1.ReasonPhrases.OK,
                 message: 'No products on sale',
                 data: undefined,
             });
@@ -61,9 +62,9 @@ combined.get('/', auth_1.auth, (req, res) => __awaiter(void 0, void 0, void 0, f
         const savedOffers = savedOffersResponse.results;
         const savedOfferIds = savedOffers.map((savedOffer) => savedOffer.properties.flaschenpost_id.number);
         if ((0, check_ids_for_equality_1.checkIdsForEquality)(currentOfferIds, savedOfferIds)) {
-            return res.status(200).send({
+            return res.status(http_status_codes_1.StatusCodes.OK).send({
                 code: res.statusCode,
-                text: 'OK',
+                text: http_status_codes_1.ReasonPhrases.OK,
                 message: 'Products on sale have not changed',
                 data: undefined,
             });
@@ -75,17 +76,17 @@ combined.get('/', auth_1.auth, (req, res) => __awaiter(void 0, void 0, void 0, f
             notion_client_1.default.createPage(savedOffersDatabaseId, currentOffer.name, currentOffer.id);
         });
         yield mastodon_client_1.default.postStatus((0, compose_mastodon_status_rule_1.composeMastodonStatusRule)(currentOffers));
-        return res.status(201).send({
+        return res.status(http_status_codes_1.StatusCodes.CREATED).send({
             code: res.statusCode,
-            text: 'Created',
+            text: http_status_codes_1.ReasonPhrases.CREATED,
             message: undefined,
             data: currentOffers,
         });
     }
     catch (error) {
-        return res.status(500).send({
+        return res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).send({
             code: res.statusCode,
-            text: 'Internal Server Error',
+            text: http_status_codes_1.ReasonPhrases.INTERNAL_SERVER_ERROR,
             message: error instanceof Error ? error.message : 'An unknown error occurred',
             data: undefined,
         });

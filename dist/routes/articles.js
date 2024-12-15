@@ -16,13 +16,14 @@ const express_1 = __importDefault(require("express"));
 const flaschenpost_client_1 = __importDefault(require("../client/flaschenpost.client"));
 const get_flaschenpost_offers_rule_1 = require("../rules/get-flaschenpost-offers.rule");
 const get_unique_article_ids_rule_1 = require("../rules/get-unique-article-ids.rule");
+const http_status_codes_1 = require("http-status-codes");
 const articles = express_1.default.Router();
 articles.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const queryParams = req.query;
     if (!('id' in queryParams)) {
-        return res.status(422).send({
+        return res.status(http_status_codes_1.StatusCodes.UNPROCESSABLE_ENTITY).send({
             code: res.statusCode,
-            text: 'Unprocessable Content',
+            text: http_status_codes_1.ReasonPhrases.UNPROCESSABLE_ENTITY,
             message: "Request must contain an 'id' query parameter",
             data: undefined,
         });
@@ -30,17 +31,17 @@ articles.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const articleIds = (0, get_unique_article_ids_rule_1.getUniqueArticleIdsRule)(queryParams['id']);
         const response = yield flaschenpost_client_1.default.getArticles(articleIds);
-        return res.status(200).send({
+        return res.status(http_status_codes_1.StatusCodes.OK).send({
             code: res.statusCode,
-            text: 'OK',
+            text: http_status_codes_1.ReasonPhrases.OK,
             message: undefined,
             data: (0, get_flaschenpost_offers_rule_1.getFlaschenpostOffersRule)(response.data),
         });
     }
     catch (error) {
-        return res.status(500).send({
+        return res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).send({
             code: res.statusCode,
-            text: 'Internal Server Error',
+            text: http_status_codes_1.ReasonPhrases.INTERNAL_SERVER_ERROR,
             message: error instanceof Error ? error.message : 'An unknown error occurred',
             data: undefined,
         });

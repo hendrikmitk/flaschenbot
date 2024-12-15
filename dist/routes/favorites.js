@@ -16,13 +16,14 @@ const express_1 = __importDefault(require("express"));
 const notion_client_1 = __importDefault(require("../client/notion.client"));
 const filter_notion_favorites_rule_1 = require("../rules/filter-notion-favorites.rule");
 const get_notion_favorites_rule_1 = require("../rules/get-notion-favorites.rule");
+const http_status_codes_1 = require("http-status-codes");
 const status = express_1.default.Router();
 const favoritesDatabaseId = process.env.FAVORITES_DATABASE_ID;
 status.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (!favoritesDatabaseId) {
-        return res.status(500).send({
+        return res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).send({
             code: res.statusCode,
-            text: 'Internal Server Error',
+            text: http_status_codes_1.ReasonPhrases.INTERNAL_SERVER_ERROR,
             message: 'No Notion database ID could be found',
             data: undefined,
         });
@@ -30,17 +31,17 @@ status.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const response = yield notion_client_1.default.getDatabase(favoritesDatabaseId);
         const results = response.results;
-        return res.status(200).send({
+        return res.status(http_status_codes_1.StatusCodes.OK).send({
             code: res.statusCode,
-            text: 'OK',
+            text: http_status_codes_1.ReasonPhrases.OK,
             message: undefined,
             data: (0, filter_notion_favorites_rule_1.filterNotionFavoritesRule)((0, get_notion_favorites_rule_1.getNotionFavoritesRule)(results)),
         });
     }
     catch (error) {
-        return res.status(500).send({
+        return res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).send({
             code: res.statusCode,
-            text: 'Internal Server Error',
+            text: http_status_codes_1.ReasonPhrases.INTERNAL_SERVER_ERROR,
             message: error instanceof Error ? error.message : 'An unknown error occurred',
             data: undefined,
         });

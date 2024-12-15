@@ -11,6 +11,7 @@ import { getFavoritesArticleIdsRule } from '../rules/get-favorites-article-ids.r
 import { getFlaschenpostOffersRule } from '../rules/get-flaschenpost-offers.rule';
 import { getNotionFavoritesRule } from '../rules/get-notion-favorites.rule';
 import { auth } from '../utils/auth';
+import { ReasonPhrases, StatusCodes } from 'http-status-codes';
 
 const combined: Router = express.Router();
 
@@ -19,9 +20,9 @@ const savedOffersDatabaseId = process.env.SAVED_OFFERS_DATABASE_ID;
 
 combined.get('/', auth, async (req: Request, res: Response) => {
   if (!favoritesDatabaseId || !savedOffersDatabaseId) {
-    return res.status(500).send({
+    return res.status(StatusCodes.NOT_FOUND).send({
       code: res.statusCode,
-      text: 'Internal Server Error',
+      text: ReasonPhrases.NOT_FOUND,
       message: 'No Notion database ID could be found',
       data: undefined,
     });
@@ -37,9 +38,9 @@ combined.get('/', auth, async (req: Request, res: Response) => {
     );
 
     if (favorites.length === 0) {
-      return res.status(200).send({
+      return res.status(StatusCodes.OK).send({
         code: res.statusCode,
-        text: 'OK',
+        text: ReasonPhrases.OK,
         message: 'No active favorites in database',
         data: undefined,
       });
@@ -54,9 +55,9 @@ combined.get('/', auth, async (req: Request, res: Response) => {
     ).filter((offer) => offer.onSale);
 
     if (currentOffers.length === 0) {
-      return res.status(200).send({
+      return res.status(StatusCodes.OK).send({
         code: res.statusCode,
-        text: 'OK',
+        text: ReasonPhrases.OK,
         message: 'No products on sale',
         data: undefined,
       });
@@ -77,9 +78,9 @@ combined.get('/', auth, async (req: Request, res: Response) => {
     );
 
     if (checkIdsForEquality(currentOfferIds, savedOfferIds)) {
-      return res.status(200).send({
+      return res.status(StatusCodes.OK).send({
         code: res.statusCode,
-        text: 'OK',
+        text: ReasonPhrases.OK,
         message: 'Products on sale have not changed',
         data: undefined,
       });
@@ -99,16 +100,16 @@ combined.get('/', auth, async (req: Request, res: Response) => {
 
     await mastodonClient.postStatus(composeMastodonStatusRule(currentOffers));
 
-    return res.status(201).send({
+    return res.status(StatusCodes.CREATED).send({
       code: res.statusCode,
-      text: 'Created',
+      text: ReasonPhrases.CREATED,
       message: undefined,
       data: currentOffers,
     });
   } catch (error: Error | unknown) {
-    return res.status(500).send({
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
       code: res.statusCode,
-      text: 'Internal Server Error',
+      text: ReasonPhrases.INTERNAL_SERVER_ERROR,
       message:
         error instanceof Error ? error.message : 'An unknown error occurred',
       data: undefined,
