@@ -9,7 +9,7 @@ const status: Router = express.Router();
 
 const favoritesDatabaseId = process.env.FAVORITES_DATABASE_ID;
 
-status.get('/', (req: Request, res: Response) => {
+status.get('/', async (req: Request, res: Response) => {
   if (!favoritesDatabaseId) {
     return res.status(500).send({
       code: res.statusCode,
@@ -19,28 +19,27 @@ status.get('/', (req: Request, res: Response) => {
     });
   }
 
-  notionClient
-    .getDatabase(favoritesDatabaseId)
-    .then((response) => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      const results: Result[] = response.results;
+  try {
+    const response = await notionClient.getDatabase(
+      favoritesDatabaseId as string
+    );
+    const results = response.results as Result[];
 
-      return res.status(200).send({
-        code: res.statusCode,
-        text: 'OK',
-        message: undefined,
-        data: filterNotionFavoritesRule(getNotionFavoritesRule(results)),
-      });
-    })
-    .catch((error) => {
-      return res.status(500).send({
-        code: res.statusCode,
-        text: 'Internal Server Error',
-        message: 'Failed to load favorites from Notion',
-        data: error,
-      });
+    return res.status(200).send({
+      code: res.statusCode,
+      text: 'OK',
+      message: undefined,
+      data: filterNotionFavoritesRule(getNotionFavoritesRule(results)),
     });
+  } catch (error: Error | unknown) {
+    return res.status(500).send({
+      code: res.statusCode,
+      text: 'Internal Server Error',
+      message:
+        error instanceof Error ? error.message : 'An unknown error occurred',
+      data: undefined,
+    });
+  }
 });
 
 export default status;
