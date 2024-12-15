@@ -2,7 +2,6 @@ import express, { Request, Response, Router } from 'express';
 
 import flaschenpostClient from '../client/flaschenpost.client';
 import mastodonClient from '../client/mastodon.client';
-import { Offer } from '../models/offers.model';
 import { composeMastodonStatusRule } from '../rules/compose-mastodon-status.rule';
 import { getFlaschenpostOffersRule } from '../rules/get-flaschenpost-offers.rule';
 import { getUniqueArticleIdsRule } from '../rules/get-unique-article-ids.rule';
@@ -27,9 +26,9 @@ status.get('/', auth, async (req: Request, res: Response) => {
       queryParams['id'] as string[] | string
     );
     const response = await flaschenpostClient.getArticles(articleIds);
-    const offersOnSale: Offer[] = getFlaschenpostOffersRule(
-      response.data
-    ).filter((offer: Offer) => offer.onSale);
+    const offersOnSale = getFlaschenpostOffersRule(response.data).filter(
+      (offer) => offer.onSale
+    );
 
     if (offersOnSale.length === 0) {
       return res.status(200).send({

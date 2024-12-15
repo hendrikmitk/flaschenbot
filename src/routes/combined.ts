@@ -5,8 +5,6 @@ import mastodonClient from '../client/mastodon.client';
 import notionClient from '../client/notion.client';
 import { Result } from '../client/notion.response';
 import { checkIdsForEquality } from '../functions/check-ids-for-equality';
-import { Favorite } from '../models/favorite.model';
-import { Offer } from '../models/offers.model';
 import { composeMastodonStatusRule } from '../rules/compose-mastodon-status.rule';
 import { filterNotionFavoritesRule } from '../rules/filter-notion-favorites.rule';
 import { getFavoritesArticleIdsRule } from '../rules/get-favorites-article-ids.rule';
@@ -34,7 +32,7 @@ combined.get('/', auth, async (req: Request, res: Response) => {
       favoritesDatabaseId as string
     );
 
-    const favorites: Favorite[] = filterNotionFavoritesRule(
+    const favorites = filterNotionFavoritesRule(
       getNotionFavoritesRule(favoritesResponse.results as Result[])
     );
 
@@ -51,7 +49,7 @@ combined.get('/', auth, async (req: Request, res: Response) => {
       getFavoritesArticleIdsRule(favorites)
     );
 
-    const currentOffers: Offer[] = getFlaschenpostOffersRule(
+    const currentOffers = getFlaschenpostOffersRule(
       flaschenpostResponse.data
     ).filter((offer) => offer.onSale);
 
@@ -64,8 +62,8 @@ combined.get('/', auth, async (req: Request, res: Response) => {
       });
     }
 
-    const currentOfferIds: number[] = currentOffers.map(
-      (currentOffer: Offer) => currentOffer.id
+    const currentOfferIds = currentOffers.map(
+      (currentOffer) => currentOffer.id
     );
 
     const savedOffersResponse = await notionClient.getDatabase(
@@ -74,8 +72,8 @@ combined.get('/', auth, async (req: Request, res: Response) => {
 
     const savedOffers: Result[] = savedOffersResponse.results as Result[];
 
-    const savedOfferIds: number[] = savedOffers.map(
-      (savedOffer: Result) => savedOffer.properties.flaschenpost_id.number
+    const savedOfferIds = savedOffers.map(
+      (savedOffer) => savedOffer.properties.flaschenpost_id.number
     );
 
     if (checkIdsForEquality(currentOfferIds, savedOfferIds)) {
@@ -87,13 +85,13 @@ combined.get('/', auth, async (req: Request, res: Response) => {
       });
     }
 
-    savedOffers.forEach((savedOffer: Result) => {
+    savedOffers.forEach((savedOffer) => {
       notionClient.archivePage(savedOffer.id).catch((error) => {
         console.log(error);
       });
     });
 
-    currentOffers.forEach((currentOffer: Offer) => {
+    currentOffers.forEach((currentOffer) => {
       notionClient.createPage(
         savedOffersDatabaseId,
         currentOffer.name,
