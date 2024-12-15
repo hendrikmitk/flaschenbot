@@ -85,11 +85,9 @@ combined.get('/', auth, async (req: Request, res: Response) => {
       });
     }
 
-    savedOffers.forEach((savedOffer) => {
-      notionClient.archivePage(savedOffer.id).catch((error) => {
-        console.log(error);
-      });
-    });
+    for (const savedOffer of savedOffers) {
+      await notionClient.archivePage(savedOffer.id);
+    }
 
     currentOffers.forEach((currentOffer) => {
       notionClient.createPage(

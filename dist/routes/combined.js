@@ -68,11 +68,9 @@ combined.get('/', auth_1.auth, (req, res) => __awaiter(void 0, void 0, void 0, f
                 data: undefined,
             });
         }
-        savedOffers.forEach((savedOffer) => {
-            notion_client_1.default.archivePage(savedOffer.id).catch((error) => {
-                console.log(error);
-            });
-        });
+        for (const savedOffer of savedOffers) {
+            yield notion_client_1.default.archivePage(savedOffer.id);
+        }
         currentOffers.forEach((currentOffer) => {
             notion_client_1.default.createPage(savedOffersDatabaseId, currentOffer.name, currentOffer.id);
         });
