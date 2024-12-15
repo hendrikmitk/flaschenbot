@@ -12,9 +12,9 @@ dotenv.config();
 const app: Express = express();
 
 app.get('/', (req: Request, res: Response) => {
-  res.status(StatusCodes.NOT_FOUND).send({
+  res.status(StatusCodes.OK).send({
     code: res.statusCode,
-    text: ReasonPhrases.NOT_FOUND,
+    text: ReasonPhrases.OK,
     message: undefined,
     data: undefined,
   });
