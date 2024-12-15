@@ -10,7 +10,7 @@ import { auth } from '../utils/auth';
 
 const status: Router = express.Router();
 
-status.get('/', auth, (req: Request, res: Response) => {
+status.get('/', auth, async (req: Request, res: Response) => {
   const queryParams = req.query;
 
   if (!('id' in queryParams)) {
@@ -22,50 +22,41 @@ status.get('/', auth, (req: Request, res: Response) => {
     });
   }
 
-  flaschenpostClient
-    .getArticles(
-      getUniqueArticleIdsRule(queryParams['id'] as string[] | string)
-    )
-    .then((response) => {
-      const offersOnSale: Offer[] = getFlaschenpostOffersRule(
-        response.data
-      ).filter((offer: Offer) => offer.onSale);
+  try {
+    const articleIds = getUniqueArticleIdsRule(
+      queryParams['id'] as string[] | string
+    );
+    const response = await flaschenpostClient.getArticles(articleIds);
+    const offersOnSale: Offer[] = getFlaschenpostOffersRule(
+      response.data
+    ).filter((offer: Offer) => offer.onSale);
 
-      if (offersOnSale.length === 0)
-        return res.status(200).send({
-          code: res.statusCode,
-          text: 'OK',
-          message: 'No product on sale',
-          data: undefined,
-        });
-
-      mastodonClient
-        .postStatus(composeMastodonStatusRule(offersOnSale))
-        .then(() => {
-          return res.status(201).send({
-            code: res.statusCode,
-            text: 'Created',
-            message: undefined,
-            data: offersOnSale,
-          });
-        })
-        .catch((error) => {
-          return res.status(500).send({
-            code: res.statusCode,
-            text: 'Internal Server Error',
-            message: 'Failed to post status to Mastodon',
-            data: error,
-          });
-        });
-    })
-    .catch((error) => {
-      return res.status(500).send({
+    if (offersOnSale.length === 0) {
+      return res.status(200).send({
         code: res.statusCode,
-        text: 'Internal Server Error',
-        message: 'Failed to load articles from flaschenpost',
-        data: error,
+        text: 'OK',
+        message: 'No product on sale',
+        data: undefined,
       });
+    }
+
+    await mastodonClient.postStatus(composeMastodonStatusRule(offersOnSale));
+
+    return res.status(201).send({
+      code: res.statusCode,
+      text: 'Created',
+      message: undefined,
+      data: offersOnSale,
     });
+  } catch (error: Error | unknown) {
+    return res.status(500).send({
+      code: res.statusCode,
+      text: 'Internal Server Error',
+      message:
+        error instanceof Error ? error.message : 'An unknown error occurred',
+      data: undefined,
+    });
+  }
 });
 
 export default status;
