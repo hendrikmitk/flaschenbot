@@ -19,7 +19,7 @@ const combined: Router = express.Router();
 const favoritesDatabaseId = process.env.FAVORITES_DATABASE_ID;
 const savedOffersDatabaseId = process.env.SAVED_OFFERS_DATABASE_ID;
 
-combined.get('/', auth, (req: Request, res: Response) => {
+combined.get('/', auth, async (req: Request, res: Response) => {
   if (!favoritesDatabaseId || !savedOffersDatabaseId) {
     return res.status(500).send({
       code: res.statusCode,
@@ -29,124 +29,95 @@ combined.get('/', auth, (req: Request, res: Response) => {
     });
   }
 
-  notionClient
-    .getDatabase(favoritesDatabaseId)
-    .then((response) => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      const results: Result[] = response.results;
+  try {
+    const favoritesResponse = await notionClient.getDatabase(
+      favoritesDatabaseId as string
+    );
 
-      const favorites: Favorite[] = filterNotionFavoritesRule(
-        getNotionFavoritesRule(results)
-      );
+    const favorites: Favorite[] = filterNotionFavoritesRule(
+      getNotionFavoritesRule(favoritesResponse.results as Result[])
+    );
 
-      if (favorites.length === 0)
-        return res.status(200).send({
-          code: res.statusCode,
-          text: 'OK',
-          message: 'No active favorites in database',
-          data: undefined,
-        });
-
-      flaschenpostClient
-        .getArticles(getFavoritesArticleIdsRule(favorites))
-        .then((response) => {
-          const currentOffers: Offer[] = getFlaschenpostOffersRule(
-            response.data
-          ).filter((offer: Offer) => offer.onSale);
-
-          if (currentOffers.length === 0)
-            return res.status(200).send({
-              code: res.statusCode,
-              text: 'OK',
-              message: 'No products on sale',
-              data: undefined,
-            });
-
-          const currentOfferIds: number[] = currentOffers.map(
-            (currentOffer: Offer) => currentOffer.id
-          );
-
-          notionClient
-            .getDatabase(savedOffersDatabaseId)
-            .then((response) => {
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-              // @ts-ignore
-              const savedOffers: Result[] = response.results;
-
-              const savedOfferIds: number[] = savedOffers.map(
-                (savedOffer: Result) =>
-                  savedOffer.properties.flaschenpost_id.number
-              );
-
-              if (checkIdsForEquality(currentOfferIds, savedOfferIds)) {
-                return res.status(200).send({
-                  code: res.statusCode,
-                  text: 'OK',
-                  message: 'Products on sale have not changed',
-                  data: undefined,
-                });
-              }
-
-              savedOffers.forEach((savedOffer: Result) => {
-                notionClient.archivePage(savedOffer.id).catch((error) => {
-                  console.log(error);
-                });
-              });
-
-              currentOffers.forEach((currentOffer: Offer) => {
-                notionClient.createPage(
-                  savedOffersDatabaseId,
-                  currentOffer.name,
-                  currentOffer.id
-                );
-              });
-
-              mastodonClient
-                .postStatus(composeMastodonStatusRule(currentOffers))
-                .then(() => {
-                  return res.status(201).send({
-                    code: res.statusCode,
-                    text: 'Created',
-                    message: undefined,
-                    data: currentOffers,
-                  });
-                })
-                .catch((error) => {
-                  return res.status(500).send({
-                    code: res.statusCode,
-                    text: 'Internal Server Error',
-                    message: 'Failed to post status to Mastodon',
-                    data: error,
-                  });
-                });
-            })
-            .catch((error) => {
-              return res.status(500).send({
-                code: res.statusCode,
-                text: 'Internal Server Error',
-                message: 'Failed to load saved offers from Notion',
-                data: error,
-              });
-            });
-        })
-        .catch((error) => {
-          return res.status(500).send({
-            code: res.statusCode,
-            text: 'Internal Server Error',
-            message: 'Failed to load articles from flaschenpost',
-            data: error,
-          });
-        });
-    })
-    .catch((error) => {
-      return res.status(500).send({
+    if (favorites.length === 0) {
+      return res.status(200).send({
         code: res.statusCode,
-        text: 'Internal Server Error',
-        message: 'Failed to load favorites from Notion',
-        data: error,
+        text: 'OK',
+        message: 'No active favorites in database',
+        data: undefined,
+      });
+    }
+
+    const flaschenpostResponse = await flaschenpostClient.getArticles(
+      getFavoritesArticleIdsRule(favorites)
+    );
+
+    const currentOffers: Offer[] = getFlaschenpostOffersRule(
+      flaschenpostResponse.data
+    ).filter((offer) => offer.onSale);
+
+    if (currentOffers.length === 0) {
+      return res.status(200).send({
+        code: res.statusCode,
+        text: 'OK',
+        message: 'No products on sale',
+        data: undefined,
+      });
+    }
+
+    const currentOfferIds: number[] = currentOffers.map(
+      (currentOffer: Offer) => currentOffer.id
+    );
+
+    const savedOffersResponse = await notionClient.getDatabase(
+      savedOffersDatabaseId
+    );
+
+    const savedOffers: Result[] = savedOffersResponse.results as Result[];
+
+    const savedOfferIds: number[] = savedOffers.map(
+      (savedOffer: Result) => savedOffer.properties.flaschenpost_id.number
+    );
+
+    if (checkIdsForEquality(currentOfferIds, savedOfferIds)) {
+      return res.status(200).send({
+        code: res.statusCode,
+        text: 'OK',
+        message: 'Products on sale have not changed',
+        data: undefined,
+      });
+    }
+
+    savedOffers.forEach((savedOffer: Result) => {
+      notionClient.archivePage(savedOffer.id).catch((error) => {
+        console.log(error);
       });
     });
+
+    currentOffers.forEach((currentOffer: Offer) => {
+      notionClient.createPage(
+        savedOffersDatabaseId,
+        currentOffer.name,
+        currentOffer.id
+      );
+    });
+
+    await mastodonClient.postStatus(composeMastodonStatusRule(currentOffers));
+
+    return res.status(201).send({
+      code: res.statusCode,
+      text: 'Created',
+      message: undefined,
+      data: currentOffers,
+    });
+  } catch (error: Error | unknown) {
+    return res.status(500).send({
+      code: res.statusCode,
+      text: 'Internal Server Error',
+      message:
+        error instanceof Error ? error.message : 'An unknown error occurred',
+      data: undefined,
+    });
+  }
 });
 
 export default combined;
