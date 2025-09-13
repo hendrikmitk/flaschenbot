@@ -1,3 +1,8 @@
+/**
+ * Retrieves unique article IDs from the given query parameters.
+ * @param {string[] | string} idQueryParams - The query parameters to retrieve unique article IDs from.
+ * @returns {string[]} The unique article IDs.
+ */
 export const getUniqueArticleIdsRule = (
   idQueryParams: string[] | string
 ): string[] => {

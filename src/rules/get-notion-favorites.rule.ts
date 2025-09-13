@@ -1,6 +1,11 @@
 import { Result } from '../client/notion.response';
 import { Favorite } from '../models/favorite.model';
 
+/**
+ * Retrieves favorites from Notion.
+ * @param {Result[]} results - The results to retrieve favorites from.
+ * @returns {Favorite[]} The retrieved favorites.
+ */
 export const getNotionFavoritesRule = (results: Result[]): Favorite[] =>
   results.map((result: Result) => {
     return {

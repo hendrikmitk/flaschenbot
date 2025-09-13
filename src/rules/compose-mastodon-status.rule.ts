@@ -2,6 +2,11 @@ import { Offer } from '../models/offers.model';
 
 const mastodonHandle: string | undefined = process.env.MASTODON_HANDLE;
 
+/**
+ * Composes a Mastodon status message from the given offers on sale.
+ * @param {Offer[]} offersOnSale - The offers on sale to compose the status for.
+ * @returns {string} The composed Mastodon status message.
+ */
 export const composeMastodonStatusRule = (offersOnSale: Offer[]): string => {
   const parts: string[] = offersOnSale.map(
     (offerOnSale: Offer) =>
