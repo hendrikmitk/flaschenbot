@@ -1,23 +1,22 @@
 import { Inventory, Result } from '../client/flaschenpost.response';
 import { Offer } from '../models/offers.model';
-import { hasArticleOnSaleRule } from './has-article-on-sale.rule';
+import { cleanArticleDescriptionRule } from './clean-article-description.rule';
 import { getSavingsAmountRule } from './get-savings-amount.rule';
 import { getSavingsPercentRule } from './get-savings-percent.rule';
 import { getWebshopUrl } from './get-webshop-url.rule';
 
 export const getFlaschenpostOffersRule = (inventory: Inventory): Offer[] =>
   inventory.results.map((result: Result) => {
+    const article = result.articles[0];
+    const isOnSale = article.offerPrice < article.price;
+
     return {
-      id: result.articles[0].id,
+      id: article.id,
       name: result.name.trim(),
-      description: result.articles[0].shortDescription.includes(' (Glas)')
-        ? result.articles[0].shortDescription
-            .slice(0, result.articles[0].shortDescription.slice.length - 9)
-            .trim()
-        : result.articles[0].shortDescription.trim(),
-      price: result.articles[0].crossedPrice,
-      onSale: hasArticleOnSaleRule(result),
-      savings: hasArticleOnSaleRule(result)
+      description: cleanArticleDescriptionRule(article.shortDescription),
+      price: article.crossedPrice,
+      onSale: isOnSale,
+      savings: isOnSale
         ? {
             amount: getSavingsAmountRule(result),
             percent: getSavingsPercentRule(result),
