@@ -33,6 +33,18 @@ export interface Properties {
   flaschenpost_id: NumberInterface;
   created: CreatedTimeInterface;
   last_edited: LastEditedTimeInterface;
+  emoji: RichTextInterface;
+}
+
+export interface RichTextInterface {
+  id: string;
+  type: string;
+  rich_text: RichText[];
+}
+
+export interface RichText {
+  type: string;
+  plain_text: string;
 }
 
 export interface CheckboxInterface {

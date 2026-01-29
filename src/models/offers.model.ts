@@ -9,4 +9,5 @@ export interface Offer {
     percent: string;
   };
   url: string;
+  emoji?: string;
 }

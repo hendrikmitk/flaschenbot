@@ -6,23 +6,10 @@ import { Offer } from '../models/offers.model';
  * @returns {string} The composed Mastodon status message.
  */
 export const composeMastodonStatusRule = (offersOnSale: Offer[]): string => {
-  const parts: string[] = offersOnSale.map(
-    (offerOnSale: Offer) =>
-      `${offerOnSale.savings?.amount} on ${offerOnSale.name} ${offerOnSale.description}`
-  );
+  const lines: string[] = offersOnSale.map((offer: Offer) => {
+    const emojiSuffix = offer.emoji ? ` ${offer.emoji}` : '';
+    return `Save ${offer.savings?.amount} on ${offer.name} ${offer.description}${emojiSuffix} ${offer.url}`;
+  });
 
-  let message = 'Save ';
-
-  for (let i = 0; i < parts.length; i++) {
-    const isLastItem: boolean = i === parts.length - 1;
-    const isSecondToLastItem: boolean = i === parts.length - 2;
-
-    message += parts[i];
-
-    if (!isLastItem && !isSecondToLastItem) message += ', ';
-
-    if (isSecondToLastItem) message += ' and ';
-  }
-
-  return message;
+  return lines.join('\n');
 };

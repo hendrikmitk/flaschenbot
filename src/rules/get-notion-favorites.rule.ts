@@ -13,5 +13,6 @@ export const getNotionFavoritesRule = (results: Result[]): Favorite[] =>
       active: result.properties.active?.checkbox || false,
       article_name: result.properties.article_name.title[0].plain_text,
       flaschenpost_id: result.properties.flaschenpost_id.number,
+      emoji: result.properties.emoji?.rich_text[0]?.plain_text,
     };
   });

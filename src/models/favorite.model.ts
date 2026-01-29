@@ -3,4 +3,5 @@ export interface Favorite {
   active: boolean;
   article_name: string;
   flaschenpost_id: number;
+  emoji?: string;
 }

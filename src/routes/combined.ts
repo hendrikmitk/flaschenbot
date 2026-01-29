@@ -50,9 +50,12 @@ combined.get('/', auth, async (req: Request, res: Response) => {
       getFavoritesArticleIdsRule(favorites)
     );
 
-    const currentOffers = getFlaschenpostOffersRule(
-      flaschenpostResponse.data
-    ).filter((offer) => offer.onSale);
+    const currentOffers = getFlaschenpostOffersRule(flaschenpostResponse.data)
+      .filter((offer) => offer.onSale)
+      .map((offer) => ({
+        ...offer,
+        emoji: favorites.find((f) => f.flaschenpost_id === offer.id)?.emoji,
+      }));
 
     if (currentOffers.length === 0) {
       return res.status(StatusCodes.OK).send({
