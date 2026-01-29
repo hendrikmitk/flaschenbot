@@ -2,7 +2,6 @@ import express, { Request, Response, Router } from 'express';
 
 import notionClient from '../client/notion.client';
 import { Result } from '../client/notion.response';
-import { filterNotionFavoritesRule } from '../rules/filter-notion-favorites.rule';
 import { getNotionFavoritesRule } from '../rules/get-notion-favorites.rule';
 import { ReasonPhrases, StatusCodes } from 'http-status-codes';
 
@@ -30,7 +29,7 @@ status.get('/', async (req: Request, res: Response) => {
       code: res.statusCode,
       text: ReasonPhrases.OK,
       message: undefined,
-      data: filterNotionFavoritesRule(getNotionFavoritesRule(results)),
+      data: getNotionFavoritesRule(results),
     });
   } catch (error: Error | unknown) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
