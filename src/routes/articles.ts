@@ -3,25 +3,15 @@ import express, { Request, Response, Router } from 'express';
 import flaschenpostClient from '../client/flaschenpost.client';
 import { getFlaschenpostOffersRule } from '../rules/get-flaschenpost-offers.rule';
 import { getUniqueArticleIdsRule } from '../rules/get-unique-article-ids.rule';
+import { validateArticleId } from '../utils/validation';
 import { ReasonPhrases, StatusCodes } from 'http-status-codes';
 
 const articles: Router = express.Router();
 
-articles.get('/', async (req: Request, res: Response) => {
-  const queryParams = req.query;
-
-  if (!('id' in queryParams)) {
-    return res.status(StatusCodes.UNPROCESSABLE_ENTITY).send({
-      code: res.statusCode,
-      text: ReasonPhrases.UNPROCESSABLE_ENTITY,
-      message: "Request must contain an 'id' query parameter",
-      data: undefined,
-    });
-  }
-
+articles.get('/', validateArticleId, async (req: Request, res: Response) => {
   try {
     const articleIds = getUniqueArticleIdsRule(
-      queryParams['id'] as string[] | string
+      req.query['id'] as string[] | string,
     );
     const response = await flaschenpostClient.getArticles(articleIds);
 
