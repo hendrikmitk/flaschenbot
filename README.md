@@ -48,6 +48,9 @@ Example: `/articles?id=3935&id=18438`
 
 Returns all favorites stored in the Notion database, including their active status.
 
+> [!IMPORTANT]
+> Requires authentication via `x-api-key` header.
+
 ### `GET /combined`
 
 Main endpoint that orchestrates the full workflow:
