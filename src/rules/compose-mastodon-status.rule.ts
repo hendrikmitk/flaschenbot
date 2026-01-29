@@ -1,7 +1,5 @@
 import { Offer } from '../models/offers.model';
 
-const mastodonHandle: string | undefined = process.env.MASTODON_HANDLE;
-
 /**
  * Composes a Mastodon status message from the given offers on sale.
  * @param {Offer[]} offersOnSale - The offers on sale to compose the status for.
@@ -13,7 +11,7 @@ export const composeMastodonStatusRule = (offersOnSale: Offer[]): string => {
       `${offerOnSale.savings?.amount} on ${offerOnSale.name} ${offerOnSale.description}`
   );
 
-  let message = `${mastodonHandle ? mastodonHandle + ' ' : ''}Save `;
+  let message = 'Save ';
 
   for (let i = 0; i < parts.length; i++) {
     const isLastItem: boolean = i === parts.length - 1;
