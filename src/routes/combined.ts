@@ -1,3 +1,4 @@
+import axios from 'axios';
 import express, { Request, Response, Router } from 'express';
 
 import flaschenpostClient from '../client/flaschenpost.client';
@@ -30,11 +31,11 @@ combined.get('/', auth, async (req: Request, res: Response) => {
 
   try {
     const favoritesResponse = await notionClient.getDatabase(
-      favoritesDatabaseId as string
+      favoritesDatabaseId as string,
     );
 
     const favorites = filterNotionFavoritesRule(
-      getNotionFavoritesRule(favoritesResponse.results as Result[])
+      getNotionFavoritesRule(favoritesResponse.results as Result[]),
     );
 
     if (favorites.length === 0) {
@@ -46,9 +47,22 @@ combined.get('/', auth, async (req: Request, res: Response) => {
       });
     }
 
-    const flaschenpostResponse = await flaschenpostClient.getArticles(
-      getFavoritesArticleIdsRule(favorites)
-    );
+    const articleIds = getFavoritesArticleIdsRule(favorites);
+
+    const flaschenpostResponse =
+      await flaschenpostClient.getArticles(articleIds);
+
+    if (
+      !Array.isArray(flaschenpostResponse.data) ||
+      flaschenpostResponse.data.length === 0
+    ) {
+      return res.status(StatusCodes.BAD_GATEWAY).send({
+        code: res.statusCode,
+        text: ReasonPhrases.BAD_GATEWAY,
+        message: 'flaschenpost article API returned no results',
+        data: undefined,
+      });
+    }
 
     const currentOffers = getFlaschenpostOffersRule(flaschenpostResponse.data)
       .filter((offer) => offer.onSale)
@@ -67,17 +81,17 @@ combined.get('/', auth, async (req: Request, res: Response) => {
     }
 
     const currentOfferIds = currentOffers.map(
-      (currentOffer) => currentOffer.id
+      (currentOffer) => currentOffer.id,
     );
 
     const savedOffersResponse = await notionClient.getDatabase(
-      savedOffersDatabaseId
+      savedOffersDatabaseId,
     );
 
     const savedOffers: Result[] = savedOffersResponse.results as Result[];
 
     const savedOfferIds = savedOffers.map(
-      (savedOffer) => savedOffer.properties.flaschenpost_id.number
+      (savedOffer) => savedOffer.properties.flaschenpost_id.number,
     );
 
     if (checkIdsForEquality(currentOfferIds, savedOfferIds)) {
@@ -97,7 +111,7 @@ combined.get('/', auth, async (req: Request, res: Response) => {
       notionClient.createPage(
         savedOffersDatabaseId,
         currentOffer.name,
-        currentOffer.id
+        currentOffer.id,
       );
     });
 
@@ -110,6 +124,18 @@ combined.get('/', auth, async (req: Request, res: Response) => {
       data: currentOffers,
     });
   } catch (error: Error | unknown) {
+    if (
+      axios.isAxiosError(error) &&
+      error.config?.baseURL?.includes('flaschenpost')
+    ) {
+      return res.status(StatusCodes.BAD_GATEWAY).send({
+        code: res.statusCode,
+        text: ReasonPhrases.BAD_GATEWAY,
+        message: `flaschenpost upstream error: ${error.message}`,
+        data: undefined,
+      });
+    }
+
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
       code: res.statusCode,
       text: ReasonPhrases.INTERNAL_SERVER_ERROR,

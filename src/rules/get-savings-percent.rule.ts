@@ -1,14 +1,16 @@
-import { Result } from '../client/flaschenpost.response';
+import { FlaschenpostProduct } from '../client/flaschenpost.response';
 
 /**
- * Retrieves the savings percent for a given offer.
- * @param {Result} result - The result to retrieve the savings percent from.
- * @returns {string} The savings percent.
+ * Retrieves the savings percent for a given product on sale.
+ * @param {FlaschenpostProduct} product - The product to retrieve the savings percent from.
+ * @returns {string} The savings percent, formatted with locale de-DE.
  */
-export const getSavingsPercentRule = (result: Result): string =>
-  new Intl.NumberFormat('de-DE', {
-    style: 'percent',
-  }).format(
-    (result.articles[0].price - result.articles[0].offerPrice) /
-      result.articles[0].price
+export const getSavingsPercentRule = (product: FlaschenpostProduct): string => {
+  const offerCents = product.masterVariant.price.value.centAmount;
+  const regularCents =
+    product.masterVariant.price.custom?.fields?.RegularPrice?.centAmount ??
+    offerCents;
+  return new Intl.NumberFormat('de-DE', { style: 'percent' }).format(
+    (regularCents - offerCents) / regularCents,
   );
+};

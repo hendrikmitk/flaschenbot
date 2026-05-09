@@ -1,11 +1,17 @@
-import { Result } from '../client/flaschenpost.response';
+import { FlaschenpostProduct } from '../client/flaschenpost.response';
 
 /**
- * Retrieves the savings amount for a given offer.
- * @param {Result} result - The result to retrieve the savings amount from.
- * @returns {string} The savings amount.
+ * Retrieves the savings amount for a given product on sale.
+ * @param {FlaschenpostProduct} product - The product to retrieve the savings amount from.
+ * @returns {string} The savings amount, formatted as EUR currency.
  */
-export const getSavingsAmountRule = (result: Result): string =>
-  new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(
-    result.articles[0].price - result.articles[0].offerPrice
-  );
+export const getSavingsAmountRule = (product: FlaschenpostProduct): string => {
+  const offerCents = product.masterVariant.price.value.centAmount;
+  const regularCents =
+    product.masterVariant.price.custom?.fields?.RegularPrice?.centAmount ??
+    offerCents;
+  return new Intl.NumberFormat('de-DE', {
+    style: 'currency',
+    currency: 'EUR',
+  }).format((regularCents - offerCents) / 100);
+};
